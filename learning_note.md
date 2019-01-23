@@ -104,3 +104,33 @@
 >> **sort:**  
 >> &emsp; Array 的 sort() 方法默认把所有元素先转换为String再排序，它还可以接受一个比较函数来实现自定义的排序。  
 >> &emsp; sort() 方法会直接对 Array 进行修改，它返回的结果仍是当前 Array。  
+>>  
+> + ## 闭包  
+>> &emsp; 我们再函数中又定义了函数，并且，内部函数可以引用外部函数的参数和局部变量，当外部函数返回内部函数时，相关参数和变量都保存在返回的函数中，这种称为“闭包(Closure)”的程序结构。  
+>> &emsp; 当调用外部函数时，每次调用都会返回一个新的内部函数，即使传入相同的参数。  
+>> &emsp; <font color = #DC163C>返回的函数并没有立刻执行，而是直到调用了f()才执行。</font>  
+>> &emsp; 返回闭包时牢记的一点就是： 返回函数不要<font color = #DC163C>引用任何循环变量，或者后续会发生变化的变量。</font>  
+>> &emsp; 如果一定要引用循环变量，再创建一个函数，用该函数的参数绑定循环变量当前的值，无论该循环变量后续如何更改，已绑定到函数参数的值不变。  
+>> &emsp; “创建一个匿名函数并立即执行”的语法：  
+>> &emsp; (function (x) { return x * x }) (3);  
+>> 
+> + ## 箭头函数  
+>> &emsp; 箭头函数相当于匿名函数，并且化简了函数定义。箭头函数有两种格式，一种像上面的，只包含一个表达式，连 { ... } 和 return 都省略掉了。还有一种可以包含多条语句，这时候就不能省略 { ... } 和 return。  
+>> &emsp; 如果要返回一个对象，就要注意，如果是单表达式  
+>> &emsp; x => { foo : x }  &emsp; // SyntaxError  
+>> &emsp; x => ({ foo : x }) &emsp; // ok  
+>> &emsp; 箭头函数看上去时匿名函数的一种简写，但实际上，箭头函数和匿名函数有个明显的<font color = #DC163C>区别</font> : 箭头函数内部的 this 时词法作用域， 由上下文确定。箭头函数的 this 总是指向词法作用域，也就是外层调用者 obj。  
+>> &emsp; 由于this在箭头函数中已经按照词法作用域绑定了，所以，用call()或者apply()调用箭头函数时，无法对this进行绑定，即传入的第一个参数被忽略。  
+>>  
+> + ## generator  
+>> &emsp; generator 跟函数很像，定义如下：  
+>> &emsp; function* foo(x) {  
+>> &emsp; &emsp; yield x + 1;  
+>> &emsp; &emsp; yield x + 2;  
+>> &emsp; &emsp; return x + 3;  
+>> &emsp;}   
+>> &emsp; generator 和函数不同的是， generator 由 function* 定义(注意多出的 * 号)， 并且，除了 return 语句，还可以用 yield 返回多次。  
+>> &emsp; 直接调用一个 generator 和调用函数不一样， fib(5) 仅仅是创建了一个 generator 对象，还没有去执行它。  
+>> &emsp; 调用 generator 对象有两个方法，  
+>> &emsp; 一是不断地调用 generator 对象的 next() 方法。 next() 方法会执行 generator 的代码，然后，每次遇到 yield x; 就返回一个对象 { value : x, done : true/false}， 然后“暂停”。 返回的 value 就是 yield 的返回值， done 表示这个 generator 是否已经之行结束了。 如果 done 为 true， 则 value 就是 return 的返回值。当执行到 don e为 true 时，这个 generator 对象就已经全部执行完毕，不要再继续调用 next() 了。  
+>> &emsp; 第二个方法是直接用 for ... of 循环迭代 generator 对象， 这种方式不需要我们自己判断 done。
