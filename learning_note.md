@@ -133,4 +133,89 @@
 >> &emsp; 直接调用一个 generator 和调用函数不一样， fib(5) 仅仅是创建了一个 generator 对象，还没有去执行它。  
 >> &emsp; 调用 generator 对象有两个方法，  
 >> &emsp; 一是不断地调用 generator 对象的 next() 方法。 next() 方法会执行 generator 的代码，然后，每次遇到 yield x; 就返回一个对象 { value : x, done : true/false}， 然后“暂停”。 返回的 value 就是 yield 的返回值， done 表示这个 generator 是否已经之行结束了。 如果 done 为 true， 则 value 就是 return 的返回值。当执行到 don e为 true 时，这个 generator 对象就已经全部执行完毕，不要再继续调用 next() 了。  
->> &emsp; 第二个方法是直接用 for ... of 循环迭代 generator 对象， 这种方式不需要我们自己判断 done。
+>> &emsp; 第二个方法是直接用 for ... of 循环迭代 generator 对象， 这种方式不需要我们自己判断 done。  
+>
++ # 标准对象  
+> 有这么几条规则需要遵守：  
+> + 不要使用new Number()、new Boolean()、new String()创建包装对象；    
+> + 用parseInt()或parseFloat()来转换任意类型到number；  
+> + 用String()来转换任意类型到string，或者直接调用某个对象的toString()方法；  
+> + 通常不必把任意类型转换为boolean再判断，因为可以直接写if (myVar) {...}；  
+> + typeof操作符可以判断出number、boolean、string、function和undefined；  
+> + 判断Array要使用Array.isArray(arr)；  
+> + 判断null请使用myVar === null；  
+> + 判断某个全局变量是否存在用typeof window.myVar === 'undefined'；  
+> + 函数内部判断某个变量是否存在用typeof myVar === 'undefined'。     
+> 
+>  &emsp; 如果在使用 Number、Boolean 和 String 时，没有写 new， 此时，Number()、 Boolean 和 String() 被当作普通函数，把任何类型的数据转换为number、boolean和string类型（注意不是其包装类型）。    
+> 
+>  &emsp; 在转换为 Boolean 时，非空转换结果为 true！    
+> 
+>  &emsp; number 对象调用 toString() 报 SyntaxError：  
+>  &emsp; &emsp;`123.toString(); &emsp; &emsp; // SyntaxError`  
+>  &emsp; 遇到这种情况，要特殊处理一下：  
+>  &emsp; &emsp; `123..toString(); &emsp; &emsp;// '123', 注意是两个点！`  
+>  &emsp; &emsp; `(123).toString(); &emsp; &emsp; // '123'`    
+> + ## RegExp  
+>> &emsp; 用 \d 可以匹配一个数字，  
+>> &emsp; 用 \w 可以匹配一个字母或数字，   
+>> &emsp; 用 \s 可以匹配一个空格。  
+>> &emsp; 用 * 表示任意个字符，用 + 表示至少一个字符， 用 ? 表示0个或1个字符，用 {n} 表示n个字符，用 {n, m} 表示n-m个字符  
+>> + 进阶  
+>> &emsp; 要做更精确的匹配，可以用 [] 表示范围。  
+>> &emsp; ^ 表示行的开头， ^\d 表示必须以数字开头。$ 表示行的结束， \d$ 表示必须以数字结束。  
+>> &emsp; ^js$ 变成整行匹配，就只能匹配 'js'。  
+>>  
+>> + RegExp  
+>> &emsp; 两种方式创建正则表达式，第一种方式是直接通过 **<font color = #CC85422>/正则表达式/ </font>** 写出来，第二种方式是通过 **<font color = #CC85422>new RegExp('正则表达式') </font>** 创建一个RegExp对象。  
+>> &emsp; 注意，如果使用第二种写法，因为字符串的转义问题，字符串的两个 \\\ 实际上是一个 \。   
+>> &emsp; RegExp 对象的 test() 方法用于测试给定的字符串是否符合条件。  
+>> + 切分字符串  
+>> &emsp; 在split(), 括号中使用 正则表达式。  
+>> + 分组  
+>> &emsp; 除了简单的判断是否匹配之外，正则表达式还有提取自穿的强大功能。用 () 表示的就是要提取的分组 (Group)。   
+>> &emsp; 如果正则表达式中定义了组，就可以在 RegExp 对象上用 exec() 方法提取出子串来。   
+>> &emsp; exec() 方法在匹配成功后，会返回一个 Array，第一个元素是正则表达式匹配到的整个字符串，后面的字符串表示匹配成功的子串； exec() 方法在匹配失败时返回 null。  
+>> + 贪婪匹配  
+>> &emsp; 正则匹配默认是贪婪匹配，也就是匹配尽可能多的字符。  
+>> &emsp; &emsp; ` var re = /^(\d+)(0*)$/;`  
+>> &emsp; &emsp; `re.exec('102300'); &emsp; &emsp; // ['102300', '102300', '']`    
+>> &emsp; 由于 `\d+` 采用贪婪匹配，直接把后面的 0 全部匹配了，结果 `0*` 只能匹配空字符串了。  
+>> &emsp; 必须让 `\d+` 采用非贪婪匹配(也就是尽可能少匹配)，才能把后面的 `0` 匹配出来，加个 `?` 就可以让 \d+ 采用非贪婪匹配。   
+>> &emsp; &emsp; ` var re = /^(\d+?)(0*)$/;`  
+>> &emsp; &emsp; `re.exec('102300'); &emsp; &emsp; // ['102300', '1023', '00']`  
+>> + 全局搜索  
+>> &emsp; JavaScript 使用 g ，表示全局匹配。  
+>>  &emsp; &emsp; ` var r1 = /test/g;`  
+>>  &emsp; &emsp; ` // 等价于:`  
+>>  &emsp; &emsp; ` var r2 = new RegExp('test', 'g');`      
+>> &emsp; 全局匹配可以多次执行 `exec()` 方法来搜索一个匹配的字符串。当我们指定 `g` 标志后，每次运行 `exec()`, 正则表达式本身会更新 `lastIndex` 属性。  
+>> &emsp; 全局匹配类似搜索，因此不能使用 `/^...$/`，那样只会最多匹配一次。  
+>> &emsp; 正则表达式还可以指定 `i` 标志，表示忽略大小写， `m` 标志，表示执行多行匹配。   
+>>
+> + ## JSON  
+>> &emsp; JSON实际上是JavaScript的一个子集。在JSON中，一共就这么几种数据类型：  
+>>> + number：和JavaScript的`number`完全一致；   
+>>> + boolean：就是JavaScript的`true`或`false`；  
+>>> + string：就是JavaScript的`string`；  
+>>> + null：就是JavaScript的`null`；  
+>>> + array：就是JavaScript的`Array`表示方式——[]；
+>>> + object：就是JavaScript的`{ ... }表示方式。   
+>> 
+>> &emsp; 以及上面的任意组合。  
+>> &emsp; 并且，JSON还定死了字符集必须是UTF-8。为了统一解析，JSON的字符串必须用双引号`""`，Object的建也必须用双引号`""`。  
+>> &emsp; 把任何JavaScript对象变成JSON，就是把这个对象序列化成一个JSON格式的字符串，这样才能够通过网络传递给其他计算机。  
+>> &emsp; 如果我们收到一个JSON格式的字符串，只需要把它反序列化成一个JavaScript对象，就可以在JavaScript中直接使用这个对象了。  
+>>   
+>> + 序列化   
+>> 把对象序列化成JSON格式的字符串(后两个参数可以省略)  
+>> &emsp; `JSON.stringify(Object, null, ' ');`  
+>> 第二个参数用于控制如何筛选对象的键值，如果只想输出指定的属性，可以传入 `Array`:  
+>> &emsp; `JSON.stringify(Object, ['name', 'skills'], ' ');`  
+>> 还可以传入一个函数，这样对象的每个键值对都会被函数先处理。  
+>>  
+>> 如果想要精确控制如何序列化一个对象，可以给该对象定义一个 `toJSON()` 的方法，直接返回JSON应该序列化的数据，然后直接调用 `JSON.stringify(Object);`。 不需要后两个参数来限制。   
+>> 
+>> + 反序列化  
+>> 拿到一个JSON格式的字符串，我们直接用 `JSON.parse()` 把它变成一个JavaScript对象。  
+>> `JSON.parse()` 还可以接收一个函数，用来转换解析出的属性。 
