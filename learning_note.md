@@ -218,4 +218,85 @@
 >> 
 >> + 反序列化  
 >> 拿到一个JSON格式的字符串，我们直接用 `JSON.parse()` 把它变成一个JavaScript对象。  
->> `JSON.parse()` 还可以接收一个函数，用来转换解析出的属性。 
+>> `JSON.parse()` 还可以接收一个函数，用来转换解析出的属性。  
+>>  
++ # 面向对象编程  
+> &emsp; JavaScript 不区分类和实例的概念，而是通过原型 (prototype) 来实现面向对象编程。  
+> &emsp; JavaScript 的原型链和 Java 的 Class 区别就在，它没有 "Class" 的概念，所有对象都是实例，所谓继承关系不过是把一个对象的原型指向另一个对象而已。  
+> &emsp; `new Object(Student)` 生成的对象是 Student 本身， `prototype` 是 Student.prototype, `__proto__` 是 Object.prototype。  
+> &emsp; `Object.create(Student)` 方法生成的对象 xiaoming 是新的对象，但 `prototype` 还是 Student.prototype,但 `__proto__` 是 Student 对象。  
+> + ## 创建对象  
+>> &emsp; 当我们用 `Obj.xxx` 访问一个对象的属性时，JavaScript 引擎现在当前对象上查找该属性，如果没有找到，就到其原型对象上找，如果还没找到，就一直上溯到 `Object.prototype` 对象，最后，如果还没有找到，就只能返回 `undefined`。  
+>> + 构造函数  
+>> &emsp; 首先定义一个构造函数，在调用时，<font color = #DC163C>注意</font>， 如果不写 `new`，这就是一个普通函数，他返回 `undefined`。但是，如果写了 `new` ，它就变成了一个构造函数，它绑定的 `this` 指向新创建的对象，并默认返回 `this`，也就是说，不需要在最后写 `return this;`。  
+>> &emsp; 函数 `Student` 恰好有个属性 `prototype`， `Student.prototype` 指向的对象就是 `xiaoming`、 `xiaohong` 的原型对象，这个原型对象自己还有个属性 `constrctor`，指向 `Student` 函数本身。  
+>> + 忘记写 new 怎么办  
+>> &emsp; 在 strict 模式下， `this.name = name` 将报错，因为 `this` 绑定为 `undefined`，在非 strict 模式下，`this.name = name` 不报错，因为 `this` 绑定为 `window`，于是无意间创建了全局变量 `name`，并且返回 `undefined`。  
+>> &emsp; 为了区分普通函数和构造函数，按照约定，构造函数首字母应当大写，而普通函数首字母应当小写。  
+>> &emsp; 最后，可以编写一个 `createStudent()` 函数，在内部封装所有的 `new` 操作。  
+>>  
+> + ## 原型继承  
+>> 1、定义新的构造函数，并在内部用 `call()` 调用希望"继承"的构造函数，并绑定 `this`；  
+>> 2、借助中间函数 `F`实现原型链继承，最好通过封装的 `inherits` 函数完成；  
+>> &emsp;function inherits(Child, Parent) {  
+>> &emsp; &emsp; var F = function () {};  
+>> &emsp; &emsp; F.prototype =   
+>> &emsp; &emsp; Parent.prototype;  
+>> &emsp; &emsp; Child.prototype = new F();  
+>> &emsp; &emsp; Child.prototype.constructor = Child;  
+>> &emsp; }  
+>> 3、继续在新的构造函数的原型上定义新方法。    
+>>  
+> + ## class 继承  
+>> &emsp; 同 Java 中， 用 `class` 和 `extends` 关键字，在子类构造函数中要super()调用父类构造函数。  
+>>  
++ # 浏览器  
+> + ## 浏览器对象  
+>> + window  
+>> &emsp; `window` 对象不但充当全局作用域，而且表示浏览器窗口。  
+>> &emsp; `window` 对象有 `innerWidth` 和 `innerHeight` 属性，可以获取浏览器窗口的内部宽度和高度。内部宽高是指除去菜单栏、工具栏、边框等占位元素后，用于显示网页的净宽高。  
+>> &emsp; 对应的， 还有一个 `outerWidth` 和 `outerHeight` 属性，可以获取浏览器窗口的整个宽高。  
+>>
+>> + navigator  
+>> &emsp; `navigator` 对象表示浏览器的信息，最常用的属性包括：  
+>> &emsp; - navigator.appName: 浏览器名称；
+>> &emsp; - navigator.appVersion：浏览器版本；  
+>> &emsp; - navigator.language：浏览器设置的语言；  
+>> &emsp; - navigator.platform：操作系统类型；  
+>> &emsp; - navigator.userAgent：浏览器设定的User-Agent字符串。  
+>> &emsp; `navigator` 的信息可以很容易地0被用户修改，所以JavaScript读取的值不一定是正确的。正确的方法是充分利用JavaScript对不存在属性返回 `undefined` 的特性，直接用短路运算符 `||` 计算。  
+>>  
+>> + screen  
+>> `screen` 对象表示屏幕的信息，常用的属性有：  
+>> &emsp; &emsp; - screen.width：屏幕宽度，以像素为单位；    
+>> &emsp; &emsp; - screen.height：屏幕高度，以像素为单位；  
+>> &emsp; &emsp; - screen.colorDepth：返回颜色位数，如8、16、24。   
+>>  
+>> + location  
+>> `location` 对象表示当前页面的 URL 信息。例如，一个完整的 URL:  
+>> &emsp; `http://www.example.com:8080/path/index.html?a=1&b=2#TOP`  
+>> 可以用 `location.href` 获取。要获得 URL 各个部分的值：  
+>> &emsp; &emsp; - location.protocol; // 'http'    
+>> &emsp; &emsp; - location.host; // 'www.example.com'  
+>> &emsp; &emsp; - location.port; // '8080'  
+>> &emsp; &emsp; - location.pathname; // '/path/index.html'  
+>> &emsp; &emsp; - location.search; // '?a=1&b=2'  
+>> &emsp; &emsp; - location.hash; // 'TOP'       
+>> 要加载一个新页面，可以调用 `location.assign('URL地址')`。如果要重新加载当前页面，调用 `location.reload()` 方法。  
+>>  
+>> + document  
+>> &emsp; `document` 对象表示当前页面.由于 HTML 在浏览器中以 DOM 形式表示为树形结构， `document` 对象就是整个 DOM 树地根节点。  
+>> &emsp; `document` 的 `title` 属性是从HTML文档中的 `\<title> xxx \</title>` 读取的，但是可以动态改变。  
+>> &emsp; 要查找 DOM 树的某个节点，需要从 `document` 对象开始查找。最常用的查找是根据 ID 和 Tag Name。用 `document` 对象提供的 `getElementById()` 和 `getElementsByTagName()` 可以按 ID 获得一个 DOM 节点和按 Tag 名称获得一组 DOM 节点。  
+>> &emsp; `document` 对象还有一个 `cookie` 属性，可以获取当前页面的 Cookie。  
+>> &emsp; Cookie 是由服务器发送的 key-value 标识符。用 Cookie 来区分是哪个用户发来的请求。当一个用户成功登录后，服务器发送一个 Cookie 给浏览器，此后，浏览器访问该网站时，会在请求头附上这个 Cookie，服务器根据 Cookie 即可区分出用户。  
+>> &emsp; Cookie 还可以存储网站的一些设置，例如，页面显示的语言等等。  
+>> &emsp; JavaScript可以通过document.cookie读取到当前页面的Cookie。  
+>> &emsp; 由于JavaScript能读取到页面的Cookie，而用户的登录信息通常也存在Cookie中，这就造成了巨大的安全隐患。  
+>> &emsp; 为了解决这个问题，服务器在设置 Cookie 时可以使用 `httpOnly`， 设定了 `httpOnly` 的 Cookie 将不能被 JavaScript 读取。  
+>> <font color = #DC163C> &emsp; 为了确保安全，服务器端在设置 Cookie 时，应该始终坚持使用 `httpOnly`。</font>  
+>>  
+>> + history  
+>> &emsp;  `history` 对象保存了浏览器的历史记录，JavaScript 可以调用 `history`对象的 `back()` 或 `forward ()`，相当于用户点击了浏览器的“后退”或“前进”按钮。  
+>> &emsp; 这个对象属于历史遗留对象，在任何情况下，都不应该使用 `history` 这个对象。
+  
