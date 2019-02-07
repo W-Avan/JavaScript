@@ -299,4 +299,84 @@
 >> + history  
 >> &emsp;  `history` 对象保存了浏览器的历史记录，JavaScript 可以调用 `history`对象的 `back()` 或 `forward ()`，相当于用户点击了浏览器的“后退”或“前进”按钮。  
 >> &emsp; 这个对象属于历史遗留对象，在任何情况下，都不应该使用 `history` 这个对象。
-  
+>>  
+> + ## 操作 DOM  
+> &emsp; 始终记住 DOM 是一个树形结构。操作一个 DOM 节点实际上就是这么几个操作：  
+> &emsp; &emsp; 1、更新： 更新该 DOM 节点的内容，相当于更新了该 DOM 节点表示的 HTML 的内容；  
+> &emsp; &emsp; 2、遍历： 遍历该 DOM 节点下的子节点，以便进行进一步操作；  
+> &emsp; &emsp; 3、添加： 在该 DOM 节点下新增一个子节点，相当于动态增加了一个 HTML 节点；  
+> &emsp; &emsp; 4、删除： 将该节点从 HTML 中删除，相当于删掉了该 DOM 节点的内容以及它包含的所有子节点。  
+> &emsp; 在操作一个 DOM 节点前，我们需要通过各种方式先拿到这个 DOM 节点。最常用的方法是 `document.getElementById()` 和 `document.getElementsByTagName()`，以及 CSS 选择器 `document.getElementByClassName()`。  
+> &emsp; 由于 ID 在 HTML 文档中是唯一的，所以 `document.getElementById()` 可以直接定位唯一的一个 DOM 节点。 `document.getElementsByTagName()` 和 `document.getElementsByClassName()` 总是返回一组 DOM 节点。要精确的选择 DOM, 可以先定位父节点，再从父节点开始选择，以缩小范围。   
+> ``` 
+> // 返回ID为'test'的节点：  
+> var test = document.getElementById('test');  
+>  
+> // 先定位ID为'test-table'的节点，再返回其内部所有tr节点：  
+> var trs = document.getElementById('test-table').getElementsByTagName('tr');  
+>  
+> // 先定位ID为'test-div'的节点，再返回其内部所有class包含red的节点：  
+> var reds = document.getElementById('test-div').getElementsByClassName('red');  
+>  
+> // 获取节点test下的所有直属子节点:  
+> var cs = test.children;  
+>
+> // 获取节点test下第一个、最后一个子节点：  
+> var first = test.firstElementChild;  
+> var last = test.lastElementChild;  
+> ```  
+> &emsp; 第二种方法是使用 `querySelector()` 和 `querySelectorAll()`，需要了解 selector 语法，然后使用条件来获取节点，更加方便：   
+> ```  
+>  // 通过 querySelector 获取 ID 为 q1 的节点； >  var q1 = document.querySelector('#q1');  
+>   
+>  // 通过 querySelectorAll 获取 q1 节点内的符合条件的所有节点；  
+>  var ps = q1.querySelectorAll('div.highlighted > p');  
+> ```  
+>  
+> + 更新 DOM  
+>> &emsp; 拿到一个 DOM 节点后，我们可以对它进行更新。可以直接修改节点的文本，方法有两种：    
+>> &emsp; 一种是修改 `innerHTML` 属性，这个方法非常强大，不但可以修改一个 DOM 节点的文本内容，还可以直接通过 HTML 片段修改 DOM 节点内部的子树：  
+>> ```
+>> // 获取 <p id = "p-id"> ... </p>  
+>> var p = document.getElementById('p-id');  
+>> 
+>> // 设置文本为 abc:  
+>> p.innerHTML = 'ABC'; // <p id = "p- id"> ABC </p>  
+>>  
+>> //设置 HTML：  
+>> p.innerHTML = 'ABC <span style = "color:red"> RED </span> XYZ'; 
+>> // <p> ... </p> 的内部结构已修改  
+>> ```  
+>> &emsp; 用 `innerHTML` 时要注意，是否需要写入 HTML。如果写入的字符串时通过网络拿到的，要注意对字符串编码来避免 XSS 攻击。  
+>>  
+>> &emsp; 第二种是修改 `innerText` 或 `textContent` 属性，这样可以自动对字符串进行 HTML 编码，保证无法设置任何 HTML 标签：  
+>> ```  
+>> // 获取 <p id = "p-id"> ... </p>  
+>> var p = document.getElementById('p-id');  
+>> 设置文本：  
+>> p.innerText = '<script> alert("Hi") </script>';  
+>> // HTML 被自动编码，无法设置一个 <script> 节点：  
+>> // <p id = "p-id"> &lt;script&gt; alert("Hi") &lt;/script&gt; </p>  
+>> ```  
+>> &emsp; 两者的区别在于读取属性时，`innerText` 不返回隐藏元素的文本，而 `textContent` 返回所有文本。  
+>> &emsp; 修改 CSS 也是经常需要的操作。DOM 节点的 `style` 属性对应所有的 CSS, 可以直接获取或设置。因为 CSS 允许 'font-size' 这样的名称，但它并非 JavaScript 有效的属性名，所以需要在 JavaScript 中改写为驼峰式命名 `fontSize`：  
+>> ```  
+>> // 获取 <p id = "p-id"> ... </p>  
+>> var p = document.getElementById('p-id');  
+>> // 设置 CSS：  
+>> p.style.color = '#ff0000';  
+>> p.style.fontSize = '20px';  
+>> p.style.paddingTop = '2em';  
+>> ```  
+>>  
+> + 插入 DOM  
+>> &emsp; 如果这个 DOM 节点时空的，那么，直接使用 `innerHTML = '<span> child </span>'` 就可以修改 DOM 节点的内容，相当于“插入”了新的 DOM 节点。  
+>> &emsp; 如果这个 DOM 节点不是空的，那就不能这么做，因为 `innerHTML` 会直接替换掉原来的所有子节点。  
+>> &emsp; 有两个办法可以插入新的节点。一个是使用 `appendChild`，把一个子节点添加到父节点的最后一个子节点。*如果我们插入的 `js` 节点已经存在于当前的文档树，这个节点首先会从原先的位置删除，再插入到新的位置。*更多时候我们会从零创建一个新的节点，然后插入到指定位置，这样我们就动态添加了一个新的节点。  
+>>  
+>> **insertBefore**   
+>> &emsp; 使用 `parentElement.insertBefore(newElement, referenceElement);`，子节点会插入到 `referenceElement` 之前。  
+> + 删除 DOM  
+>> &emsp; 要删除一个节点，首先要获得该节点本身以及它的父节点，然后，调用父节点的 `removeChild` 把自己删掉。  
+>> &emsp; 注意，删除后的节点虽然不在文档书中，但其实它还在内存中，可以随时再次被添加到别的位置。  
+>> &emsp; 当你遍历一个父节点的子节点并进行删除操作时，要注意， `children` 属性是一个*只读属性* ，并且它再子节点变化时会实时更新。
