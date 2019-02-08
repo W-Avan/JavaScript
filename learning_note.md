@@ -152,10 +152,10 @@
 >  &emsp; 在转换为 Boolean 时，非空转换结果为 true！    
 > 
 >  &emsp; number 对象调用 toString() 报 SyntaxError：  
->  &emsp; &emsp;`123.toString(); &emsp; &emsp; // SyntaxError`  
+>  &emsp; &emsp;`123.toString(); // SyntaxError`  
 >  &emsp; 遇到这种情况，要特殊处理一下：  
->  &emsp; &emsp; `123..toString(); &emsp; &emsp;// '123', 注意是两个点！`  
->  &emsp; &emsp; `(123).toString(); &emsp; &emsp; // '123'`    
+>  &emsp; &emsp; `123..toString(); // '123', 注意是两个点！`  
+>  &emsp; &emsp; `(123).toString(); // '123'`    
 > + ## RegExp  
 >> &emsp; 用 \d 可以匹配一个数字，  
 >> &emsp; 用 \w 可以匹配一个字母或数字，   
@@ -169,7 +169,7 @@
 >> + RegExp  
 >> &emsp; 两种方式创建正则表达式，第一种方式是直接通过 **<font color = #CC85422>/正则表达式/ </font>** 写出来，第二种方式是通过 **<font color = #CC85422>new RegExp('正则表达式') </font>** 创建一个RegExp对象。  
 >> &emsp; 注意，如果使用第二种写法，因为字符串的转义问题，字符串的两个 \\\ 实际上是一个 \。   
->> &emsp; RegExp 对象的 test() 方法用于测试给定的字符串是否符合条件。  
+>> &emsp; RegExp 对象的 **test()** 方法用于测试给定的字符串是否符合条件。  
 >> + 切分字符串  
 >> &emsp; 在split(), 括号中使用 正则表达式。  
 >> + 分组  
@@ -301,39 +301,40 @@
 >> &emsp; 这个对象属于历史遗留对象，在任何情况下，都不应该使用 `history` 这个对象。
 >>  
 > + ## 操作 DOM  
-> &emsp; 始终记住 DOM 是一个树形结构。操作一个 DOM 节点实际上就是这么几个操作：  
-> &emsp; &emsp; 1、更新： 更新该 DOM 节点的内容，相当于更新了该 DOM 节点表示的 HTML 的内容；  
-> &emsp; &emsp; 2、遍历： 遍历该 DOM 节点下的子节点，以便进行进一步操作；  
-> &emsp; &emsp; 3、添加： 在该 DOM 节点下新增一个子节点，相当于动态增加了一个 HTML 节点；  
-> &emsp; &emsp; 4、删除： 将该节点从 HTML 中删除，相当于删掉了该 DOM 节点的内容以及它包含的所有子节点。  
-> &emsp; 在操作一个 DOM 节点前，我们需要通过各种方式先拿到这个 DOM 节点。最常用的方法是 `document.getElementById()` 和 `document.getElementsByTagName()`，以及 CSS 选择器 `document.getElementByClassName()`。  
-> &emsp; 由于 ID 在 HTML 文档中是唯一的，所以 `document.getElementById()` 可以直接定位唯一的一个 DOM 节点。 `document.getElementsByTagName()` 和 `document.getElementsByClassName()` 总是返回一组 DOM 节点。要精确的选择 DOM, 可以先定位父节点，再从父节点开始选择，以缩小范围。   
-> ``` 
-> // 返回ID为'test'的节点：  
-> var test = document.getElementById('test');  
->  
-> // 先定位ID为'test-table'的节点，再返回其内部所有tr节点：  
-> var trs = document.getElementById('test-table').getElementsByTagName('tr');  
->  
-> // 先定位ID为'test-div'的节点，再返回其内部所有class包含red的节点：  
-> var reds = document.getElementById('test-div').getElementsByClassName('red');  
->  
-> // 获取节点test下的所有直属子节点:  
-> var cs = test.children;  
->
-> // 获取节点test下第一个、最后一个子节点：  
-> var first = test.firstElementChild;  
-> var last = test.lastElementChild;  
-> ```  
-> &emsp; 第二种方法是使用 `querySelector()` 和 `querySelectorAll()`，需要了解 selector 语法，然后使用条件来获取节点，更加方便：   
-> ```  
->  // 通过 querySelector 获取 ID 为 q1 的节点； >  var q1 = document.querySelector('#q1');  
->   
->  // 通过 querySelectorAll 获取 q1 节点内的符合条件的所有节点；  
->  var ps = q1.querySelectorAll('div.highlighted > p');  
-> ```  
->  
-> + 更新 DOM  
+>> &emsp; 始终记住 DOM 是一个树形结构。操作一个 DOM 节点实际上就是这么几个操作：  
+>> &emsp; &emsp; 1、更新： 更新该 DOM 节点的内容，相当于更新了该 DOM 节点表示的 HTML 的内容；  
+>> &emsp; &emsp; 2、遍历： 遍历该 DOM 节点下的子节点，以便进行进一步操作；  
+>> &emsp; &emsp; 3、添加： 在该 DOM 节点下新增一个子节点，相当于动态增加了一个 HTML 节点；  
+>> &emsp; &emsp; 4、删除： 将该节点从 HTML 中删除，相当于删掉了该 DOM 节点的内容以及它包含的所有子节点。  
+>> &emsp; 在操作一个 DOM 节点前，我们需要通过各种方式先拿到这个 DOM 节点。最常用的方法是 `document.getElementById()` 和 `document.getElementsByTagName()`，以及 CSS 选择器 `document.getElementByClassName()`。  
+>> &emsp; 由于 ID 在 HTML 文档中是唯一的，所以 `document.getElementById()` 可以直接定位唯一的一个 DOM 节点。 `document.getElementsByTagName()` 和 `document.getElementsByClassName()` 总是返回一组 DOM 节点。要精确的选择 DOM, 可以先定位父节点，再从父节点开始选择，以缩小范围。   
+>> ``` 
+>> // 返回ID为'test'的节点：  
+>> var test = document.getElementById('test');  
+>>  
+>> // 先定位ID为'test-table'的节点，再返回其内部所有tr节点：  
+>> var trs = document.getElementById('test-table').getElementsByTagName('tr');  
+>>  
+>> // 先定位ID为'test-div'的节点，再返回其内部所有class包含red的节点：  
+>> var reds = document.getElementById('test-div').getElementsByClassName('red');  
+>>  
+>> // 获取节点test下的所有直属子节点:  
+>> var cs = test.children;  
+>>
+>> // 获取节点test下第一个、最后一个子节点：  
+>> var first = test.firstElementChild;  
+>> var last = test.lastElementChild;  
+>> ```  
+>> &emsp; 第二种方法是使用 `querySelector()` 和 `querySelectorAll()`，需要了解 selector 语法，然后使用条件来获取节点，更加方便：   
+>> ```  
+>>  // 通过 querySelector 获取 ID 为 q1 的节点；  
+>>  var q1 = document.querySelector('#q1');  
+>>   
+>>  // 通过 querySelectorAll 获取 q1 节点内的符合条件的所有节点；  
+>>  var ps = q1.querySelectorAll('div.highlighted > p');  
+>> ```  
+>>  
+>> + 更新 DOM  
 >> &emsp; 拿到一个 DOM 节点后，我们可以对它进行更新。可以直接修改节点的文本，方法有两种：    
 >> &emsp; 一种是修改 `innerHTML` 属性，这个方法非常强大，不但可以修改一个 DOM 节点的文本内容，还可以直接通过 HTML 片段修改 DOM 节点内部的子树：  
 >> ```
@@ -353,8 +354,10 @@
 >> ```  
 >> // 获取 <p id = "p-id"> ... </p>  
 >> var p = document.getElementById('p-id');  
+>>  
 >> 设置文本：  
 >> p.innerText = '<script> alert("Hi") </script>';  
+>>  
 >> // HTML 被自动编码，无法设置一个 <script> 节点：  
 >> // <p id = "p-id"> &lt;script&gt; alert("Hi") &lt;/script&gt; </p>  
 >> ```  
@@ -369,14 +372,100 @@
 >> p.style.paddingTop = '2em';  
 >> ```  
 >>  
-> + 插入 DOM  
+>> + 插入 DOM  
 >> &emsp; 如果这个 DOM 节点时空的，那么，直接使用 `innerHTML = '<span> child </span>'` 就可以修改 DOM 节点的内容，相当于“插入”了新的 DOM 节点。  
 >> &emsp; 如果这个 DOM 节点不是空的，那就不能这么做，因为 `innerHTML` 会直接替换掉原来的所有子节点。  
 >> &emsp; 有两个办法可以插入新的节点。一个是使用 `appendChild`，把一个子节点添加到父节点的最后一个子节点。*如果我们插入的 `js` 节点已经存在于当前的文档树，这个节点首先会从原先的位置删除，再插入到新的位置。*更多时候我们会从零创建一个新的节点，然后插入到指定位置，这样我们就动态添加了一个新的节点。  
->>  
->> **insertBefore**   
+>> &emsp; **insertBefore**   
 >> &emsp; 使用 `parentElement.insertBefore(newElement, referenceElement);`，子节点会插入到 `referenceElement` 之前。  
-> + 删除 DOM  
+>>  
+>> + 删除 DOM  
 >> &emsp; 要删除一个节点，首先要获得该节点本身以及它的父节点，然后，调用父节点的 `removeChild` 把自己删掉。  
 >> &emsp; 注意，删除后的节点虽然不在文档书中，但其实它还在内存中，可以随时再次被添加到别的位置。  
->> &emsp; 当你遍历一个父节点的子节点并进行删除操作时，要注意， `children` 属性是一个*只读属性* ，并且它再子节点变化时会实时更新。
+>> &emsp; 当你遍历一个父节点的子节点并进行删除操作时，要注意， `children` 属性是一个*只读属性* ，并且它再子节点变化时会实时更新。  
+>>  
+> + ## 操作表单  
+>>  HTML 表单的输入控件主要有以下几种：  
+>> + 文本框，对应的 `<input type="text">`，用于输入文本；  
+>> + 口令框，对应的 `<input type="password">`，用于输入口令；  
+>> + 单选框，对应的 `<input type="radio">`，用于选择一项；  
+>> + 复选框，对应的 `<input type="checkbox">`，用于选择多项;  
+>> + 下拉框，对应的 `<select>`，用于选择一项；  
+>> + 隐藏文本，对应的 `<input type="hidden">`，用户不可见，但表单提交时会把隐藏文本发送到服务器。  
+>>  
+>> **获取值**  
+>> &emsp; 如果我们获得了一个 `<input>` 节点的引用，就可以直接调用 `value` 获得对应的用户输入值。  
+>> &emsp; 这种方式可以应用于 `text`、 `password`、 `hidden`以及 `select`。但是，对于单选框和复选框，`vaule` 属性返回的永远是 HTML 预设值，而我们需要获得的实际是用户是否“勾上了”选项，所以应该用 `checked` 判断。  
+>>  
+>> **设置值**  
+>> &emsp; 设置值和获取值类似，对于 `text`、 `password`、 `hidden` 以及 `select`，直接设置 `value` 就可以。对于单选框和复选框，设置 `checked` 为 `true` 或 `false` 即可。   
+>>  
+>> **HTML5 控件**  
+>> &emsp; HTML5 新增了大量标准控件，常用的包括 `date`、 `datetime`、 `datetime-local`、 `color` 等，它们都使用 `<input>` 标签。不支持 HTML5 的浏览器无法识别新的控件，会把它们当作 `type="text"` 来显示。支持 HTML5 的浏览器将获得格式化的字符串。  
+>>  
+>> **提交表单**  
+>> &emsp; 方式一是通过 `<form>` 元素的 `submit()` 方法提交一个表单。  
+>> &emsp; 这种方法的缺点是扰乱了浏览器对 form 的正常提交。浏览器默认点击 `<button type="submit">` 时提交表单，或者用户在最后一个输入框按回车键。   
+>> &emsp; 因此，第二种方式是响应 `<form>` 本身的 `<onsubmit>` 事件，再提交 form 时作修改。  
+>> ```  
+>> <!-- HTML -->  
+>>  <form id="test-form" onsubmit="return checkForm()">  
+>>     <input type="text" name="test">  
+>>     <button type="submit">Submit</button>  
+>> </form>
+>>  
+>> <script>
+>> function checkForm() {
+>>     var form = document.getElementById('test-form');  
+>>     // 可以在此修改form的input...  
+>>     // 继续下一步:  
+>>     return true;  
+>> }  
+>> </script>  
+>> ```  
+>> &emsp; 注意要 `return true` 来告诉浏览器继续提交，如果 `return false`，浏览器将不会继续提交 form，这种情况通常对应用户输入有误，提示用户错误信息后终止提交 form。  
+>>  
+>> &emsp; 在检查和修改 `<input>` 时，要充分利用 `<input type="hidden">` 来传递数据。  
+>> &emsp; 例如，很多登录表单希望用户输入用户名和口令，但是，安全考虑，提交表单时不传输明文口令，而是口令的 MD5。普通 JavaScript 开发人员会直接修改 `<input>`。  
+>> &emsp; 但用户输入了口令提交时，口令框的显示会突然从几个 `*` 变成 32 个 `*` (因为 MD5 有 32 个字符)。  
+>> &emsp; 要想不改变用户的输入，可以利用 `<input type="hidden">` 实现：  
+>> ```  
+>> <!-- HTML -->  
+>> <form id="login-form" method="post" onsubmit="return checkForm()">  
+>>    <input type="text" id="username" name="username">  
+>>    <input type="password" id="input-password">  
+>>    <input type="hidden" id="md5-password" name="password">  
+>>    <button type="submit">Submit</button>  
+>> </form>  
+>>  
+>> <script>  
+>> function checkForm() {  
+>>    var input_pwd = document.getElementById('input-password');  
+>>    var md5_pwd = document.getElementById('md5-password');  
+>>    // 把用户输入的明文变为MD5:  
+>>    md5_pwd.value = toMD5(input_pwd.value);  
+>>    // 继续下一步:  
+>>    return true;  
+>> }  
+>> </script>  
+>> ```  
+>> &emsp; 注意到 `id` 为 `md5-password` 的 `<input>` 标记了 `name="password"`，而用户输入的 `id` 为 `input-password` 的 `<input>` 没有 `name` 属性。没有 `name` 属性的 `<input>` 的数据不会被提交。  
+> + ## 操作文件  
+>> &emsp; 在 HTML 表单中，可以上传文件的唯一控件就是 `<input type="file">`。  
+>> &emsp; <font color=#dc321c>注意：</font> 当一个表单包含 `<input type="file">` 时，表单的 `enctype` 必须指定为 `multipart/form-data`， `method` 必须指定为 `post`，浏览器才能正确编码并以 `multipart/form-data` 格式发送表单的数据。  
+>> &emsp; 出于安全考虑，浏览器只允许用户点击 `<input type="file">` 来选择本地文件，用 JavaScript 对 `<input type="file">` 的 `value` 赋值是没有任何效果的。当用户选择了上传某个文件后， JavaScript 也无法获得该文件的真实路径。  
+>>  
+>> **File API**  
+>> &emsp; 由于 JavaScript 对用户上传的文件操作非常有限，尤其是无法读取文件内容，使得很多需要操作文件的网页不得不用 Flash 这样的第三方插件来实现。  
+>> &emsp; HTML5 的 File API 提供了 `File` 和 `FileReader` 两个主要对象，可以获得文件信息并读取文件。  
+>>  
+>> **回调**  
+>> &emsp; JavaScript 的一个重要的特性就是*单线程执行模式*。在 JavaScript 中，执行多任务实际上都是异步调用：  
+>> &emsp; `reader.readAsDataURL(file);`  
+>> &emsp; 就会发起一个异步操作来读取文件内容。因为是异步操作，所以在 JavaScript 代码中就不知道什么时候操作结束，因此需要先设置一个回调函数：  
+>> ```  
+>> reader.onload = function(e) {   
+>>      // 当文件读取完成后，自动调用此函数；  
+>> };  
+>> ```  
+>> &emsp; 当文件读取完成后，JavaScript 引擎将自动调用我们设置的回调函数。执行回调函数时，文件已经读取完毕，所以可以在回调函数内部安全的获得文件内容。
