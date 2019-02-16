@@ -264,7 +264,7 @@
 >> &emsp; - navigator.language：浏览器设置的语言；  
 >> &emsp; - navigator.platform：操作系统类型；  
 >> &emsp; - navigator.userAgent：浏览器设定的User-Agent字符串。  
->> &emsp; `navigator` 的信息可以很容易地0被用户修改，所以JavaScript读取的值不一定是正确的。正确的方法是充分利用JavaScript对不存在属性返回 `undefined` 的特性，直接用短路运算符 `||` 计算。  
+>> &emsp; `navigator` 的信息可以很容易地被用户修改，所以JavaScript读取的值不一定是正确的。正确的方法是充分利用JavaScript对不存在属性返回 `undefined` 的特性，直接用短路运算符 `||` 计算。  
 >>  
 >> + screen  
 >> `screen` 对象表示屏幕的信息，常用的属性有：  
@@ -468,4 +468,139 @@
 >>      // 当文件读取完成后，自动调用此函数；  
 >> };  
 >> ```  
->> &emsp; 当文件读取完成后，JavaScript 引擎将自动调用我们设置的回调函数。执行回调函数时，文件已经读取完毕，所以可以在回调函数内部安全的获得文件内容。
+>> &emsp; 当文件读取完成后，JavaScript 引擎将自动调用我们设置的回调函数。执行回调函数时，文件已经读取完毕，所以可以在回调函数内部安全的获得文件内容。  
+> + ## AJAX 
+>> &emsp; AJAX 不是 JavaScript 的规范，它是 *Asynchronous JavaScript and XML* 的缩写，意思就是用 JavaScript 执行异步网络请求。  
+>> &emsp; Web 的运作原理：一次 HTTP 请求对应一个页面。  
+>> &emsp; 如果要让用户留在当前页面中，同时发出新的 HTTP 请求，就必须用 JavaScript 发送这个新请求，接收到数据后，再用 JavaScript 更新页面，这样用户就感觉自己仍然停留在当前页面，但是数据却可以不断地更新。   
+>> &emsp; AJAX 请求时异步执行的，要通过回调函数获得响应。  
+>> &emsp; 现代浏览器上写 AJAX 注意依靠 `XMLHttpRequest` 对象：  
+>> &emsp; &emsp; `var request = new XMLHttpRequest();`   
+>> &emsp; 对于低版本的 IE，需要换一个 `ActiveXObject` 对象：  
+>> &emsp; &emsp; `var request = new ActiveXObject('Microsoft.XMLHTTP');`    
+>> &emsp; 把标准写法和 IE 写法混在一起：  
+>> ```  
+>> var request;  
+>> if (window.XMLHttpRequest){
+>>    request = new XMLHttpRequest();    
+>> } else {
+>>    request = new ActiveXObject('Microsoft.XMLHTTP');  
+>> }
+>> ```  
+>> &emsp; `XMLHttpRequest` 对象的 `open()` 方法有 3 个参数，第一个参数指定是 `GET` 还是 `POST`，第二个参数指定 URL 地址，第三个参数指定是否使用异步，默认是 `true`，所以不用写。千万不要把第三个参数指定为 `false`，否则浏览器将停止响应，直到 AJAX 请求完成。在这个过程中浏览器处于“假死”状态。  
+>> &emsp; 最后调用 `send()` 方法才真正发送请求。`GET` 请求不需要参数，`post` 请求需要把 body 部分以字符串或者 `FormData` 对象传进去。  
+>>  
+>> ### **安全限制:**  
+>> &emsp; 浏览器的同源策略导致，在默认情况下，JavaScript 在发送 AJAX 请求时，URL 的域名必须和当前页面完全一致。  
+>> &emsp; 用 JavaScript 请求外域(其他网站)的 URL 的方法：  
+>> &emsp; &emsp; 1、是通过 Flash 插件发送 HTTP 请求，这种方式可以绕过浏览器的安全限制，但必须安装 Flash，并且跟 Flash 交互。  
+>> &emsp; &emsp; 2、是通过同源域名下假设一个代理服务器来转发，JavaScript 负责把请求发送到代理服务器：  
+>> &emsp; &emsp; `'/proxy?url=http://www.sina.com.cn' `  
+>> &emsp; &emsp; 3、第三种方法称为 JSONP，它有个限制，只能用 GET 请求，并且要求返回 JavaScript。这种方式跨域实际上是利用了浏览器允许跨域引用 JavaScript 资源。  
+>> &emsp; &emsp; &emsp; 要求在页面中先准备好回调函数，然后给页面动态加一个 `<script>` 节点，相当于动态读取外域的 JavaScript 资源，最后就等着接受回调了。  
+>>  
+>> ### **CORS**  
+>> &emsp; CORS 全称 Cross-Origin Resource Sharing，是 HTML5 规范定义的如何跨区访问资源。  
+>> &emsp; Origin 表示本域，也就是浏览器当前页面的域。当 JavaScript 向外域 (如sina.com) 发起请求后，浏览器收到响应后，首先检查 `Access-Control-Allow-Origin` 是否包含本域，如果是，则此次跨域请求成功，如果不是，则请求失败，JavaScript 将无法获取到相应的任何数据。  
+> + ## Promise   
+>> &emsp; 把上节中的回调函数 `success(request.responseText)` 和 `fail(request.status)` 写到一个 AJAX 操作里很正常，但是不利于代码复用，可以这样写：  
+>> ```  
+>> var ajax = ajaxGet('http://...');
+>> ajax.ifSuccess(success)
+>>     .ifFail(fail);  
+>> ```  
+>> &emsp; “承诺将来会执行”的对象在 JavaScript 中称为 Promise 对象。  
+>> &emsp; 看一个最简单的Promise例子：生成一个0-2之间的随机数，如果小于1，则等待一段时间后返回成功，否则返回失败：  
+>> ```  
+>> function test(resolve, reject) {
+>>    var timeOut = Math.random() * 2;
+>>    log('set timeout to: ' + timeOut + ' seconds.');
+>>    setTimeout(function () {
+>>        if (timeOut < 1) {
+>>            log('call resolve()...');
+>>            resolve('200 OK');
+>>        }
+>>        else {
+>>            log('call reject()...');
+>>            reject('timeout in ' + timeOut + ' seconds.');
+>>        }
+>>    }, timeOut * 1000);
+>>}  
+>> ```  
+>> &emsp; 这个 `test()` 函数有两个参数，这两个参数都是函数，如果执行成功，我们将调用 `resolve('200 OK')`，如果执行失败，我们将调用 `reject('timeout in ' + timeOut + ' seconds.')`。可以看出，`test()` 函数只关心自身逻辑，并不关心具体的 `resolve` 和 `reject` 将如何处理结果。  
+>> &emsp; 有了执行函数，我们就可以用一个 Promise 对象来执行它，并在将来某个时刻获得成功或失败的结果：  
+>> ```  
+>> var p1 = new Promise(test);
+>> var p2 = p1.then(function (result) {
+>>     console.log('成功：' + result);
+>> });
+>> var p3 = p2.catch(function (reason) {
+>>     console.log('失败：' + reason);
+>> });  
+>> ```  
+>> &emsp; 如果成功，执行 **then** ；如果失败，执行 **catch**。  
+>> &emsp; Promise对象可以串联起来，所以上述代码可以简化为：  
+>> ```  
+>> new Promise(test).then(function (result) {
+>>     console.log('成功：' + result);
+>> }).catch(function (reason) {
+>>     console.log('失败：' + reason);
+>> });  
+>> ```  
+>> &emsp; 可见 Promise 最大的好处是在异步执行的流程中，把执行代码和处理结果的代码清晰地分离了：  
+>>
+>> &emsp; &emsp; &emsp; ![](https://cdn.liaoxuefeng.com/cdn/files/attachments/001436512391628944d5da9a5654a35b0ace38246f30b9c000/l)  
+>>  
+>> &emsp; Promise 还可以做更多的事情，比如，由若干个异步任务，需要先做任务1，如果成功后再做任务2，任何任务失败则不再继续并执行错误处理函数。  
+>> `job1.then(job2).then(job3).catch(handleError);`  
+>> &emsp; 其中， `job1`、 `job2` 和 `job3` 都是 Promise 对象。  
+>>  
+>> &emsp; 除了串行执行若干异步任务外，Promise 还可以并行执行异步任务，用 `Promise.all()` 实现：   
+>> ```
+>> var p1 = new Promise(function (resolve, reject) {
+>>     setTimeout(resolve, 500, 'P1');
+>> });  
+>> 
+>> var p2 = new Promise(function (resolve, reject) {
+>>     setTimeout(resolve, 600, 'P2');
+>> });  
+>>
+>> // 同时执行p1和p2，并在它们都完成后执行then:
+>> Promise.all([p1, p2]).then(function (results) {
+>>     console.log(results); // 获得一个Array: ['P1', 'P2']
+>> });  
+>> ```  
+>>  
+>> &emsp; 有时候，多个异步任务是为了容错。比如，同时向两个 URL 读取用户的个人信息，只需要获得先返回的结果即可。这种情况，用 `Promise.race()` 实现：  
+>> ```  
+>> var p1 = new Promise(function (resolve, reject) {
+>>     setTimeout(resolve, 500, 'P1');
+>> });
+>> var p2 = new Promise(function (resolve, reject) {
+>>     setTimeout(resolve, 600, 'P2');
+>> });
+>> Promise.race([p1, p2]).then(function (result) {
+>>     console.log(result); // 'P1'
+>> });  
+>> ```  
+>> &emsp; 由于 `p1` 执行较快，Promise 的 `then()` 将获得结果 `P1`。`P2` 仍在继续执行，但执行结果将被丢弃。  
+>> &emsp; 如果我们组合使用 Promise，就可以把很多异步任务以并行和串行的方式组合起来执行。   
+>>  
+> + ## Canvas  
+>> &emsp; Canvas 是 HTML5 新增的组件，它就像一块幕布，可以用 JavaScript 在上面绘制各种图表、动画等。  
+>> &emsp; 一个 Canvas 定义了一个指定尺寸的矩形框，在这个范围内我们可以随意绘制：  
+>> `<canvas id="test-canvas" width="300" height="200"></canvas>`  
+>> &emsp; 在 `<canvas>` 内部添加一些说明性 HTML 代码，如果浏览器支持 Canvas，它将忽略 `<canvas>` 内部的 HTML ，如果浏览器不支持 Canvas，它将显示 `<canvas>` 内部的 HTML。  
+>> &emsp; `getContext('2d')` 方法让我们拿到一个`CanvasRenderingContext2D` 对象，所有的绘图操作都需要通过这个对象完成。  
+>>  
+>> ### **绘制形状**  
+>> &emsp; 我们可以在 Canvas 上绘制各种形状。在绘制前，我们需要先了解一个 Canvas 的坐标系统：  
+>>  
+>> &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; ![](https://cdn.liaoxuefeng.com/cdn/files/attachments/001436926614788af8f274570d54736bddbbf7b2b03a9eb000/l)    
+>>  
+>> &emsp; Canvas的坐标以左上角为原点，水平向右为X轴，垂直向下为Y轴，以像素为单位，所以每个点都是非负整数。  
+>> &emsp; Canvas除了能绘制基本的形状和文本，还可以实现动画、缩放、各种滤镜和像素转换等高级操作。如果要实现非常复杂的操作，考虑以下优化方案：  
+>> + 通过创建一个不可见的Canvas来绘图，然后将最终绘制结果复制到页面的可见Canvas中;  
+>> + 尽量使用整数坐标而不是浮点数;  
+>> + 可以创建多个重叠的Canvas绘制不同的层，而不是在一个Canvas中绘制非常复杂的图;    
+>> + 背景图片如果不变可以直接用 `<img>` 标签并放到最底层。
