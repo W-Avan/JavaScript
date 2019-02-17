@@ -603,4 +603,152 @@
 >> + 通过创建一个不可见的Canvas来绘图，然后将最终绘制结果复制到页面的可见Canvas中;  
 >> + 尽量使用整数坐标而不是浮点数;  
 >> + 可以创建多个重叠的Canvas绘制不同的层，而不是在一个Canvas中绘制非常复杂的图;    
->> + 背景图片如果不变可以直接用 `<img>` 标签并放到最底层。
+>> + 背景图片如果不变可以直接用 `<img>` 标签并放到最底层。  
+>>  
++ # jQuery  
+> &emsp; jQuery 是 JavaScript 世界中使用最广泛的一个库， jQuery 能帮我们干这些事情：   
+> + 消除浏览器差异：不需要自己写冗长的代码来针对不同的浏览器来绑定事件，编写 AJAX 等代码；  
+> + 简洁的操作 DOM 的方法：写 `$('#test')` 肯定比 `document.getElementById('test')` 来得简洁；  
+> + 轻松实现动画、修改 CSS 等各种操作。  
+> &emsp; jQuery的理念：*Write Less, Do More*  
+> ### **使用jQuery**  
+> &emsp; 使用 jQuery 只需要在页面的 `<head>` 引入 jQuery 文件即可：  
+> `<script src="//code.jquery.com/jquery-1.11.3.min.js"></script>`  
+>  
+> ### **$符号**  
+> &emsp; `$` 是著名的 jQuery 符号。实际上，jQuery 把所有功能全部封装在一个全局变量 `jQuery` 中，而 `$` 也是一个合法的变量名，它是变量 `jQuery` 的别名：  
+> &emsp; <font color=#dc172c>注意</font>，你看到的 `$` 函数名可能不是 `jQuery(selector, context)`，因为很多 JavaScript 压缩工具可以对函数名和参数改名，所以压缩过的 jQuery 源码 `$` 函数可能变成 `a(b, c)`。  
+> &emsp; 绝大多时候，我们都直接用 `$` （因为写起来更方便）。但是，如果 `$` 这个变量不幸地被占用了，而且还不能改，那我们就只能让 `jQuery` 把 `$` 变量交出来，然后就只能使用 `jQuery` 这个变量：  
+> ```
+> $; // jQuery(selector, context)
+> jQuery.noConflict();
+> $; // undefined
+> jQuery; // jQuery(selector, context)    
+> ```  
+> &emsp; 原理是 jQuery 在占用 `$` 之前，现在内部保存了原来的 `$`，调用 `jQuery.noConflict()` 时会把原来保存的变量还原。  
+> + ## 选择器  
+>> ### **按 ID 查找**  
+>> ```  
+>> // 查找 <div id="abc">:
+>> var div = $('#abc');  
+>> ```
+>> &emsp; 通常情况下你不需要获取 DOM 对象，直接使用 jQuery 对象更加方便。如果你拿到了一个 DOM 对象，那可以简单的调用 `$(aDomObject)` 把它变成 jQuery 对象，这样就可以方便地使用 jQuery 的 API 了。  
+>>  
+>> ### **按 tag 查找**  
+>> ```  
+>> var ps = $('p');  //返回所有<p>节点 
+>> ps.length;        //数一数页面有多少个<p>节点  
+>> ```  
+>>  
+>> ### **按 class 查找**   
+>> ```  
+>> var a = $('.red');  // 所有节点包含 'class="red"' 都将返回  
+>> // 例如：  
+>> // <div class="red"> ... </div>
+>> // <p class="green red"> ... </p>  
+>>  
+>> var b = $('.red.green');  // 注意没有空格！  
+>> // 符合条件的有： 
+>> // <div class="red green"> ... </div>
+>> // <div class="blue green red"> ... </div> 
+>> ```  
+>>  
+>> ### **按属性查找**  
+>> ```  
+>> var email = $('[name=email]');  // 找出 <??? name="email">  
+>> var a = $('[items="A B"]');  // 找出 <??? items="A B"> , 当属性的值包含空格等特殊字符时，需要用双引号括起来。  
+>>  
+>> // 按属性查找还可以使用前缀查找或者后缀查找：  
+>> var icons = $('[name^=icon]');  // 找出所有name属性值以 icon 开头的 DOM  
+>> var names = $('[name$=with]');  // 找出所有name属性值以 with 结尾的 DOM 
+>>  
+>> var icons = $('[class^="icon-"]');  //找出所有 class 包含至少一个以 'icon-' 开头的 DOM  
+>> // 例如： class="icon-clock", class="abc icon-home"  
+>> ```  
+>>  
+>> ### **组合查找**  
+>> ```  
+>> var emailInput = $('input[name=email]');  // 不会找出 <div name="email">  
+>>  
+>> // 根据 tag 和 class 来组合查找：  
+>> var tr = $('tr.red");  // 找出 <tr class="red"> ... </tr>  
+>> ```  
+>>  
+>> ### **多项选择器**  
+>> ```  
+>> $('p.div');    // 把 <p> 和 <div> 都选出来   
+>> $('p.red, p.green');    // 把 <p class="red"> 和 <p class="green"> 都选出来  
+>> ``` 
+>> &emsp; 要注意的是，选出来的元素是按照它们在HTML中出现的顺序排列的，而且不会有重复元素。例如，`<p class="red green">` 不会被上面的 `$('p.red,p.green')` 选择两次。  
+>>   
+>> + ### 层级选择器  
+>>> **层级选择器（Descendant Selector）**  
+>>> &emsp; 如果两个 DOM 元素具有层级关系，就可以用 `$('ancestor descendant')` 来选择，层级之间用空格隔开：  
+>>> ```  
+>>> $('ul.lang li.lang-javascript');  // [<li class="lang-javascript">JavaScript</li>]  
+>>> $('div.testing li.lang-javascript');  // [<li class="lang-javascript">JavaScript</li>]  
+>>> ```  
+>>> &emsp; 因为 `<div>` 和 `<ul>` 都是 `<li>` 的祖先节点，所以上面两种方式都可以选出相应的 `<li>` 节点。多层选择也是被允许的。  
+>>>  
+>>> **子选择器 （Child Selector）**   
+>>> &emsp; 子选择器 `$('parent>child')` 类似层级选择器，但是限定了层级关系必须是父子关系，就是 `<child>` 节点必须是 `<parent>` 节点的直属子节点：  
+>>> ```  
+>>>  $('ul.lang>li.lang-javascript'); // 可以选出[<li class="lang-javascript">JavaScript</li>]  
+>>>
+>>> $('div.testing>li.lang-javascript'); // [], 无法选出，因为<div>和<li>不构成父子关系  
+>>> ```
+>>>  
+>>> **过滤器 （Filter）**  
+>>> ```  
+>>> $('ul.lang li'); // 选出JavaScript、Python和Lua 3个节点
+>>>
+>>> $('ul.lang li:first-child'); // 仅选出JavaScript
+>>> $('ul.lang li:last-child'); // 仅选出Lua
+>>> $('ul.lang li:nth-child(2)'); // 选出第N个元素，N从1开始
+>>> $('ul.lang li:nth-child(even)'); // 选出序号为偶数的元素
+>>> $('ul.lang li:nth-child(odd)'); // 选出序号为奇数的元素  
+>>> ```  
+>>>  
+>>> **表单相关**  
+>>> &emsp; 针对表单元素，jQuery 还有一组特殊的选择器：  
+>>> + `:input`：可以选择 `<input>`，`<textarea>`，`<select>` 和 `<button>`；
+>>>   
+>>> + `:file`：可以选择 `<input type="file">`，和 `input[type=file]` 一样；
+>>>   
+>>> + `:checkbox`：可以选择复选框，和 `input[type=checkbox]` 一样；
+>>>   
+>>> + `:radio`：可以选择单选框，和 `input[type=radio]` 一样；
+>>>   
+>>> + `:focus`：可以选择当前输入焦点的元素，例如把光标放到一个 `<input>` 上，用 $('input:focus')` 就可以选出；
+>>>   
+>>> + `:checked`：选择当前勾上的单选框和复选框，用这个选择器可以立刻获得用户选择的项目，如 `$('input[type=radio]:checked')`；
+>>>   
+>>> + `:enabled`：可以选择可以正常输入的 `<input>`、`<select>` 等，也就是没有灰掉的输入；
+>>>   
+>>> + `:disabled`：和: `enabled` 正好相反，选择那些不能输入的。  
+>> + ### 查找和过滤  
+>>> &emsp; 最常见的查找是在某个节点的所有子节点中查找，使用 `find()` 方法。  
+>>> &emsp; 如果要从当前节点开始向上查找，使用 `parent()` 方法。  
+>>> &emsp; 对于位于同一层级的节点，可以通过 `next()` 和 `prev()` 方法。  
+>>> &emsp; 如果传入的过滤条件不符合实际 html ，返回空 jQuery 对象。  
+>>>  
+>>> **过滤**  
+>>> &emsp; `filter()` 方法可以过滤掉不符合选择器条件的节点，或传入一个函数，<font color='dc172c'>要特别注意函数内部的 `this` 被绑定为 DOM 对象，不是 jQuery 对象：</font>  
+>>> ```  
+>>> var langs = $('ul.lang li'); // 拿到JavaScript, Python, Swift, Scheme和Haskell  
+>>>   
+>>> langs.filter(function () {
+>>>      return this.innerHTML.indexOf('S') === 0; // 返回S开头的节点
+>>> }); // 拿到Swift, Scheme
+>>> ```  
+>>> &emsp; `map()` 方法把一个 jQuery 对象包含的若干 DOM 节点转化为其他对象。  
+>>> &emsp; 此外，一个 jQuery 对象如果包含了不止一个 DOM 节点，`first()`、`last()` 和 `slice()` 方法可以返回一个新的 jQuery 对象，把不需要的 DOM 节点去掉：  
+>>> ```  
+>>> var langs = $('ul.lang li'); // 拿到JavaScript, Python, Swift, Scheme和Haskell
+>>> var js = langs.first(); // JavaScript，相当于$('ul.lang li:first-child')
+>>> var haskell = langs.last(); // Haskell, 相当于$('ul.lang li:last-child')
+>>> var sub = langs.slice(2, 4); // Swift, Scheme, 参数和数组的slice()方法一致  
+>>> ```
+
+
+
