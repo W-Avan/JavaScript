@@ -748,7 +748,138 @@
 >>> var js = langs.first(); // JavaScript，相当于$('ul.lang li:first-child')
 >>> var haskell = langs.last(); // Haskell, 相当于$('ul.lang li:last-child')
 >>> var sub = langs.slice(2, 4); // Swift, Scheme, 参数和数组的slice()方法一致  
->>> ```
+>>> ```  
+> + ## 操作 DOM  
+>> ### **修改 Text 和 HTML**  
+>> &emsp; jQuery 对象的 `text()` 和 `html()` 方法分别获取节点的文本和原始 HTML 文本，无参数调用 `text()` 是获取文本， 传入参数就变成设置文本，HTML 也是类似操作。  
+>>  
+>> ### **修改 CSS**  
+>> &emsp; 要高亮显示动态语言，调用 jQuery 对象的 `css('name', 'value')` 方法。  
+>> &emsp; jQuery 对象的 `css()` 方法可以这样用:  
+>> ```
+>> var div = $('#test-div');
+>> div.css('color');   // '#000033', 获取 CSS 属性  
+>> div.css('color', '#336699');  // 设置 CSS 属性  
+>> div.css('color', '');  // 清除 CSS 属性 
+>> ```  
+>> &emsp; 为了和 JavaScript 保持一致，CSS 属性可以用 `'background-color'` 和 `'backgroundColor'` 两种格式。  
+>> &emsp; `css()` 方法将作用于 DOM 节点的 `style` 属性，具有最高优先级。如果要修改 `class` 属性，可以用 jQuery 提供的下列方法：  
+>> ```  
+>> var div = $('#test-div'); 
+>> div.hasClass('highlight');  // false, class是否包含 highlight  
+>> div.addClass('highlight');  // 添加 highlight 这个 class  
+>> div.removeClass('highlight'); // 删除 highlight 这个 class  
+>> ```  
+>>  
+>> ### **显示和隐藏 DOM**  
+>> &emsp; 要隐藏一个 DOM，我们可以设置 CSS 的 `display` 属性为 `none`，利用 `css()` 方法就可以实现。不过，要显示这个 DOM 就需要恢复原有的 `display` 属性，这就得先记下来原有的 `display` 属性到底是 `block` 还是 `inline` 还是别的值。   
+>> &emsp; jQuery 直接提供 `show()` 和 `hide()` 方法，我们不用关心它是如何修改 `display` 属性的。  
+>> &emsp; <font color='red'>注意</font>，隐藏DOM节点并未改变DOM树的结构，它只影响DOM节点的显示。这和删除DOM节点是不同的。  
+>>  
+>> ### **获取 DOM 信息**  
+>> &emsp; jQuery.width()、 jQuery.height() 可以直接获取 DOM 的高宽。  
+>> &emsp; `attr()` 和 `removeAttr()` 方法用于操作 DOM 节点的属性：  
+>> ```
+>> // <div id="test-div" name="Test" start="1">...</div>
+>> var div = $('#test-div');
+>> div.attr('data'); // undefined, 属性不存在
+>> div.attr('name'); // 'Test'
+>> div.attr('name', 'Hello'); // div的name属性变为'Hello'
+>> div.removeAttr('name'); // 删除name属性
+>> div.attr('name'); // undefined  
+>> ```  
+>> &emsp; `prop()` 方法和 `attr()` 类似，但是 HTML5 规定有一种属性在 DOM 节点中可以没有值，只有出现与不出现两种，例如：  
+>> ``` 
+>> <input id="test-radio" type="radio" name="test" checked value="1">
+>> //等价于： 
+>> <input id="test-radio" type="radio" name="test" checked="checked" value="1">  
+>>  
+>> var radio = $('#test-radio');
+>> radio.attr('checked'); // 'checked'
+>> radio.prop('checked'); // true  
+>> ```  
+>> &emsp; `prop()` 返回值更合理一些。不过，用 `is()` 方法判断更好： 
+>> ```  
+>> var radio = $('#test-radio');
+>> radio.is(':checked'); // true  
+>> ``` 
+>> &emsp; 类似的属性还有 `selected`，处理时最好用 `is(':selected')`。  
+>>  
+>> ### **操作表单**  
+>> &emsp; 对于表单元素，jQuery对象统一提供val()方法获取和设置对应的value属性。  
+>> + ### 修改 DOM 结构   
+>>> **添加 DOM**  
+>>> &emsp; 要添加新的 DOM 节点，除了通过 jQuery 的 `html()` 这种暴力方法外，还可以用 `append()` 方法。  
+>>> &emsp; 除了接收字符串，`append()` 还可以传入原始的 DOM 对象，jQuery 对象和函数对象。  
+>>> &emsp; `append()` 把 DOM 添加到最后，`prepend()` 则把 DOM 添加到最前。  
+>>> &emsp; 另外注意，如果要添加的 DOM 节点已经存在于 HTML 文档中，它会首先从文档移除，然后再添加，也就是说，用 `append()`，你可以移动一个 DOM 节点。  
+>>> &emsp; 如果要把新节点插入到指定位置，例如，JavaScript 和 Python 之间，那么，可以先定位到 JavaScript，然后用 `after()` 方法。也就是说，同级节点可以用 `after()` 或者 `before()` 方法。  
+>>>  
+>>> **删除节点**  
+>>> &emsp; 要删除 DOM 节点，拿到jQuery对象后直接调用 `remove()` 方法就可以了。  
+> + ## 事件  
+>> &emsp; 用 jQuery 绑定一个 `click` 事件：  
+>> ``` 
+>> var a = $('#test-link');
+>> a.on('click', function () {
+>>    alert('Hello!');    
+>> });
+>>  
+>> // -----------------
+>> a.click(function () {
+>>    alert('Hello!');    
+>> });
+>> ```  
+>> &emsp; `on` 方法用来绑定一个事件，另一种更简化的写法是直接调用 `click()` 方法。  
+>>   
+>> ### **鼠标事件**  
+>> &emsp; click: 鼠标单击时触发；  
+>> &emsp; dblclick：鼠标双击时触发；  
+>> &emsp; mouseenter：鼠标进入时触发；  
+>> &emsp; mouseleave：鼠标移出时触发；  
+>> &emsp; mousemove：鼠标在 DOM 内部移动时触发；  
+>> &emsp;  hover：鼠标进入和退出时触发两个函数，相当于 mouseenter 加上 mouseleave。    
+>>  
+>> ### **键盘事件**
+>> &emsp; 键盘事件仅作用在当前焦点的DOM上，通常是 `<input>` 和 `<textarea>`。  
+>> &emsp; keydown：键盘按下时触发；  
+>> &emsp; keyup：键盘松开时触发；  
+>> &emsp; keypress：按一次键后触发。  
+>>  
+>> ### **其他事件**  
+>> &emsp; focus：当 DOM 获得焦点时触发；  
+>> &emsp; blur：当 DOM 失去焦点时触发；  
+>> &emsp; change：当 `<input>`、`<select>` 或 `<textarea>` 的内容改变时触发；  
+>> &emsp; submit：当 `<form>` 提交时触发；  
+>> &emsp; ready：当页面被载入并且 DOM 树完成初始化后触发。<font color='red'> 根据例子理解一下。 </font>  
+>>  
+>> ### **事件参数**  
+>> &emsp; 有些事件，如 `mousemove` 和 `keypress`，我们需要获取鼠标位置和按键的值，否则监听这些事件就没什么意义了。所有事件都会传入 `Event` 对象作为参数，可以从` Event` 对象上获取到更多的信息(function(e) 中要填e)  
+>>  
+>> ### **取消绑定**  
+>> &emsp; 一个已被绑定的事件可以解除绑定，通过 `off('click', function)` 实现。  
+>> &emsp; <font color='red'>注意</font>，参数 function 必须是之前已绑定的 function，若重写一个一模一样的函数，但它们仍是两个不同的函数对象，因而无法移除。  
+>> &emsp; 为了实现移除效果，可以使用 `off('click')` 一次性移除已绑定的click事件的所有处理函数。  
+>> &emsp; 同理，无参数调用 `off()` 一次性移除已绑定的所有类型的事件处理函数。  
+>>  
+>> ### **事件触发条件**  
+>> &emsp; 事件的触发总是由用户操作引发的。当用户在文本框中输入时，就会触发 `change` 事件。但是，如果 `JavaScript` 代码去改动文本框的值，将不会触发 `change` 事件。有些时候，我们希望用代码触发 `change` 事件，可以直接调用无参数的 `change()` 方法来触发该事件。 
+>> ``` 
+>> var input = $('#test-input');
+>> input.val('change it!'); // 无法触发change事件  
+>> 
+>> input.val('change it');
+>> input.change();  // 触发 change 事件
+>> ```  
+>> &emsp; `input.change()` 相当于 `input.trigger('change')`，它是 `trigger()` 方法的简写。  
+>>   
+>> ### **浏览器安全限制**  
+>> &emsp; 在浏览器中，有些 JavaScript 代码只有在用户触发下才能执行，例如，`window.open()` 函数，若不经过用户触发，则无法弹出新窗口，将被浏览器屏蔽。  
+
+
+
+
+
 
 
 
