@@ -1013,6 +1013,423 @@
 >> ### **针对特定元素的扩展**  
 >> &emsp; 我们知道 jQuery 对象的有些方法只能作用在特定 DOM 元素上，比如 `submit()` 方法只能针对 `form`。如果我们编写的扩展只能针对某些类型的 DOM 元素，应该怎么写？  
 >> &emsp; 还记得 jQuery 的选择器支持 `filter()` 方法来过滤吗？我们可以借助这个方法来实现针对特定元素的扩展。  
+ + # 错误处理  
+> ### **try ... catch ... finally**  
+> &emsp; 有错误发生时，执行流程：  
+> + 先执行 `try { ... }` 的代码；  
+> + 执行到出错的语句时，后续语句不再继续执行，转而执行 `catch (e) { ... }` 代码；  
+> + 最后执行 `finally { ... }` 代码。   
+>  
+>    
+> &emsp; 而没有错误发生时，执行流程：  
+> + 先执行 `try { ... }` 的代码；  
+> + 因为没有出错，`catch (e) { ... }` 代码不会被执行；  
+> + 最后执行 `finally { ... }` 代码。    
+>  
+> &emsp; 最后请注意，`catch` 和 `finally` 可以不必都出现。也就是说，`try` 语句一共有三种形式:  
+> 1、完整的 try ... catch ... finally  
+> 2、只有 try ... catch,没有 finally  
+> 3、只有 try ... finally,没有catch  
+>   
+> ### **错误类型**  
+> &emsp; JavaScript 有一个标准的 `Error` 对象表示错误，还有从 `Error` 派生的 `TypeError`、`ReferenceError` 等错误对象。我们在处理错误时，可以通过 `catch(e)` 捕获的变量 `e` 访问错误对象。  
+> &emsp; 使用变量 `e` 是一个习惯用法，也可以以其他变量名命名，如 `catch(ex)`。  
+>  
+> ### **抛出错误**  
+> &emsp; 程序也可以主动抛出一个错误，让执行流程直接跳转到 `catch` 块。抛出错误使用 `throw` 语句。  
+> &emsp; 处理错误时，请不要简单粗暴地用 `alert()` 把错误显示给用户。教程的代码使用 `alert()` 是为了便于演示。  
+> 
+> + ## 错误传播  
+>> &emsp; 如果在一个函数内部发生了错误，它自身没有捕获，错误就会被抛到外层调用函数，如果外层函数也没有捕获，该错误会一直沿着函数调用链向上抛出，直到被JavaScript引擎捕获，代码终止执行。  
+> + ## 异步错误处理  
+>> &emsp;  编写 JavaScript 代码时，我们要时刻牢记，JavaScript 引擎是一个事件驱动的执行引擎，代码总是以单线程执行，而回调函数的执行需要等到下一个满足条件的事件出现后，才会被执行。  
+>> &emsp; 例如，`setTimeout()` 函数可以传入回调函数，并在指定若干毫秒后执行：  
+>> ```  
+>> function printTime() {
+>>     console.log('It is time!');
+>> }
+>> 
+>> setTimeout(printTime, 1000);
+>> console.log('done');  
+>> ```  
+>> &emsp; 上面的代码会先打印`done`，1秒后才会打印 `It is time!` 。  
+>> &emsp; 如果 `printTime()` 函数内部发生了错误，我们试图用 try 包裹 `setTimeout()` 是无效的。  
+>> &emsp; 原因就在于调用 `setTimeout()` 函数时，传入的 `printTime` 函数并未立刻执行！紧接着，JavaScript 引擎会继续执行 `console.log('done')`;语句，而此时并没有错误发生。直到1秒钟后，执行 `printTime` 函数时才发生错误，但此时除了在 `printTime` 函数内部捕获错误外，外层代码并无法捕获。  
+>> &emsp; 所以，涉及到异步代码，无法在调用时捕获，原因就是在捕获的当时，回调函数并未执行。  
+>> &emsp; 类似的，当我们处理一个事件时，在绑定事件的代码处，无法捕获事件处理函数的错误。  
++ # underscore  
+> &emsp; `Array` 有 `map()` 和 `filter()` 方法，可是 Object 没有这些方法。此外，低版本的浏览器例如 IE6～8 也没有这些方法，怎么办？  
+> &emsp; 方法一，自己把这些方法添加到 `Array.prototype` 中，然后给 `Object.prototype` 也加上 `mapObject()` 等类似的方法。  
+> &emsp; 方法二，直接找一个成熟可靠的第三方开源库，使用统一的函数来实现 `map()`、`filter()` 这些操作。  
+> &emsp; 正如 jQuery 统一了不同浏览器之间的 DOM 操作的差异，让我们可以简单地对 DOM 进行操作， underscore 则提供了一套完善的函数式编程的接口，让我们更方便地在 JavaScript 中实现函数式编程。  
+> &emsp; jQuery 在加载时，会把自身绑定到唯一的全局变量 `$` 上， underscore 与其类似，会把自身绑定到唯一的全局变量_上，这也是为啥它的名字叫 underscore 的原因。  
+> &emsp; 用 underscore 实现 `map()` 操作如下：  
+> ```  
+> 'use strict';
+> _.map([1, 2, 3], (x) => x * x); // [1, 4, 9]
+> ```  
+> &emsp; 咋一看比直接用 `Array.map()` 要麻烦一点，可是 underscore 的 `map()` 还可以作用于 Object：  
+> ```
+> 'use strict';
+> _.map({ a: 1, b: 2, c: 3 }, (v, k) => k + '=' + v); // ['a=1', 'b=2', 'c=3']  
+> ```  
+> + ## Collections  
+>> &emsp; underscore 为集合类对象提供了一致的接口。集合类是指 Array 和 Object，暂不支持 Map 和 Set。  
+>> ### **map / filter**  
+>> 和 `Array` 的 `map()` 与 `filter()` 类似，但是 underscore 的 `map()` 和 `filter()` 可以作用于 Object。当作用于 Object 时，传入的函数为 `function (value, key)` ，第一个参数接收 value，第二个参数接收 key:  
+>> ``` 
+>> 'use strict';
+>> 
+>> var obj = {
+>>     name: 'bob',
+>>     school: 'No.1 middle school',
+>>     address: 'xueyuan road'
+>> };    
+>> 
+>> var upper = _.mapObject(obj, function (value, key) {
+>>     return key + '=' + value;
+>> });    
+>> 
+>> console.log(JSON.stringify(upper));
+>> ```  
+>> &emsp; 对 Object 做 `map()` 操作的返回结果是 `Array`，把 `_.map` 换成 `_.mapObject` 即可返回 Object。  
+>>  
+>> ### **every / some**  
+>> &emsp; 当集合的所有元素都满足条件时，`_.every()` 函数返回 `true`，当集合的至少一个元素满足条件时，`_.some()` 函数返回 `true`：  
+>> ``` 
+>> 'use strict';
+>> // 所有元素都大于0？
+>> _.every([1, 4, 7, -3, -9], (x) => x > 0); // false  
+>>  
+>> // 至少一个元素大于0？
+>> _.some([1, 4, 7, -3, -9], (x) => x > 0); // true  
+>> ```  
+>>  
+>> ### **max / min**  
+>> &emsp; 这两个函数直接返回集合中最大和最小的数:  
+>> ```  
+>> 'use strict';
+>> var arr = [3, 5, 7, 9];
+>> _.max(arr); // 9
+>> _.min(arr); // 3
+>> 
+>> // 空集合会返回-Infinity和Infinity，所以要先判断集合不为空：
+>> _.max([])
+>> -Infinity
+>> _.min([])
+>> Infinity  
+>> ```  
+>> &emsp; 注意，如果集合是 Object ，`max()` 和 `min()` 只作用于 value，忽略掉 key：  
+>> ```  
+>> 'use strict';
+>> _.max({a:1, b:2, c:3});  // 3  
+>> ```
+>>  
+>> ### **groupBy**  
+>> &emsp; `groupBy()` 把集合的元素按照 key 归类，key 由传入的函数返回：  
+>> ```  
+>> 'use strict';
+>> 
+>> var scores = [20, 81, 75, 40, 91, 59, 77, 66, 72, 88, 99];
+>> var groups = _.groupBy(scores, function (x) {
+>>     if (x < 60) {
+>>         return 'C';
+>>     } else if (x < 80) {
+>>         return 'B';
+>>     } else {
+>>         return 'A';
+>>     }
+>> });  
+>>
+>> // 结果:
+>> // {
+>> //   A: [81, 91, 88, 99],
+>> //   B: [75, 77, 66, 72],
+>> //   C: [20, 40, 59]
+>> // }  
+>> ```  
+>> ### **shuffle / sample**  
+>> &emsp; `shuffle()` 用洗牌算法随机打乱一个集合：  
+>> ```
+>> 'use strict';
+>> // 注意每次结果都不一样  
+>> _.shuffle([1, 2, 3, 4, 5]);  //[3, 5, 4, 6, 2, 1]  
+>> ```  
+>> &emsp; `sample()` 则是随机选择一个或多个元素：  
+>> ```  
+>> 'use strict';  
+>> // 注意每次结果都不一样； 
+>>   
+>> // 随机选 1 个：  
+>> _.sample([1, 2, 3, 4, 5]);  // 2  
+>> 
+>> // 随机选 3 个： 
+>> _.sample([1, 2, 3, 4, 5], 3);  // [6, 1, 4]  
+>> ```  
+>> &emsp; 更多完整的函数请参考underscore 的文档：http://underscorejs.org/#collections  
+> + ## Arrays  
+>> ### **first / last**  
+>> &emsp; 这两个函数分别取第一个和最后一个元素。  
+>> ### **flatten**  
+>> &emsp; `flatten()` 接收一个 `Array`，无论这个 `Array` 里面嵌套了多少个 `Array`，`flatten()` 最后都把它们变成一个一维数组:  
+>> ``` 
+>> 'use strict;'
+>>  
+>> _.flatten([1, [2], [3, [[4], [5]]]]); // [1, 2, 3, 4, 5]  
+>> ``` 
+>>  
+>> ### **zip / unzip**  
+>> &emsp; `zip()` 把两个或多个数组的所有元素按索引对齐，然后按索引合并成新数组。例如，你有一个 `Array` 保存了名字，另一个 `Array` 保存了分数，现在，要把名字和分数给对上，用 `zip()` 轻松实现:  
+>> ```  
+>> 'use strict';
+>> 
+>> var names = ['Adam', 'Lisa', 'Bart'];
+>> var scores = [85, 92, 59];
+>> _.zip(names, scores);
+>> // [['Adam', 85], ['Lisa', 92], ['Bart', 59]]    
+>>  
+>> // unzip() 则是反过来：  
+>> 'use strict;'
+>> var namesAndScores = [['Adam', 85], ['Lisa', 92], ['Bart', 59]];  
+>> _.unzip(namesAndScores);  
+>> // [['Adam', 'Lisa', 'Bart'], [85, 92, 59]]  
+>> ```  
+>>   
+>> ### **object**  
+>> &emsp; `object()` 函数与 `zip()` 不同在于可以把名字和分数直接对应成 Object。  
+>> ```  
+>> 'use strict;'
+>>
+>> var names = ['Adam', 'Lisa', 'Bart'];  
+>> var scores = [85, 92, 59];  
+>> _.object(names, scores);  
+>> // {'Adam:85, Lisa:92, BBart:59'}  
+>> ```  
+>> &emsp; <font color='red'>注意</font>, `_.object()` 是一个函数，不是 JavaScript 的 'Object' 对象。  
+>>  
+>> ### **range**  
+>> &emsp; `range()` 让你快速生成一个序列，不再需要用 `for` 循环实现了：  
+>> ```  
+>> 'use strict';
+>> 
+>> // 从0开始小于10:
+>> _.range(10); // [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+>> 
+>> // 从1开始小于11：
+>> _.range(1, 11); // [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+>> 
+>> // 从0开始小于30，步长5:
+>> _.range(0, 30, 5); // [0, 5, 10, 15, 20, 25]
+>> 
+>> // 从0开始大于-10，步长-1:
+>> _.range(0, -10, -1); // [0, -1, -2, -3, -4, -5, -6, -7, -8, -9]  
+>> ```  
+>>  
+> + ## Functions  
+>> ### **bind**  
+>> &emsp; `bind()` 有什么用？我们西安看一个常见的错误用法：  
+>> ```  
+>> 'use strict;'  
+>>  
+>> var s = ' Hello '; 
+>> s.trim();  
+>> // 输出 'Hello'
+>>  
+>> var fn = s.trim;
+>> fn();  
+>> // Uncaught TypeError: String.prototype.trim called on null or undefined  
+>> ```  
+>> &emsp; 如果你想用 `fn()` 取代 `s.trim()`，按照上面的做法是不行的，因为直接调用 `fn()` 传入的 `this` 指针是 `undefined`，必须这么用：  
+>> ```  
+>> 'use strict;'
+>>  
+>> var s = ' Hello ';
+>> var fn = s.trim();
+>>
+>> // 调用 call 并传入 s 对象作为 this：
+>> fn(s);  
+>> // 输出 Hello  
+>> ```  
+>> &emsp; 这样做太麻烦，可以用 `bind()` 帮我们把 `s` 对象直接绑定在 `fn()` 的 `this` 指针上，以后调用 `fn()` 就可以直接正常调用了：  
+>> ```
+>> 'use strict;'
+>> 
+>> var s = ' Hello ';
+>> var fn = _.bing(s.trim, s);
+>> fn();
+>> // 输出 Hello
+>> ```  
+>> &emsp; 结论：当用一个变量 `fn` 指向一个对象的方法时，直接调用 `fn()` 是不行的，因为丢失了 `this` 对象的引用。用 `bind` 可以修复这个问题。  
+>>  
+>> ### **partial**  
+>> &emsp; `partial()` 就是为一个函数创建偏函数。创建偏函数的目的是将原函数的某些参数固定住，可以降低新函数调用的难度。  
+>> &emsp; 假设我们要计算 x^y，这时只需要调用 `Math.pow(x, y)` 就可以了。  
+>> &emsp; 假设我们经常计算 2^y，每次都写 `Math.pow(2, y)` 就比较麻烦，如果创建一个新的函数能直接这样写 `pow2N(y)` 就好了，这个新函数 `pow2N(y)` 就是根据 `Math.pow(x, y)` 创建出来的偏函数，它固定住了原函数的第一个参数（始终为2）:  
+>> ```  
+>> 'use strict';
+>> 
+>> var pow2N = _.partial(Math.pow, 2);
+>> pow2N(3); // 8
+>> pow2N(5); // 32
+>> pow2N(10); // 1024
+>> ```  
+>> &emsp; 如果我们不想固定第一个参数，想固定第二个参数怎么办？比如，希望创建一个偏函数 `cube(x)`，计算 x^3，可以用 `_` 作占位符，固定住第二个参数：   
+>> ```
+>> 'use strict';
+>> 
+>> var cube = _.partial(Math.pow, _, 3);
+>> cube(3); // 27
+>> cube(5); // 125
+>> cube(10); // 1000  
+>> ```  
+>>  
+>> ### **memoize**  
+>> &emsp; 如果一个函数调用开销很大，我们就可能希望能把结果缓存下来，以便后续调用时直接获得结果。举个例子，计算阶乘就比较耗时:  
+>> ```
+>> 'use strict';
+>> 
+>> var factorial = _.memoize(function(n) {
+>>     console.log('start calculate ' + n + '!...');
+>>     var s = 1, i = n;
+>>     while (i > 1) {
+>>         s = s * i;
+>>         i --;
+>>     }
+>>     console.log(n + '! = ' + s);
+>>     return s;
+>> }
+>> 
+>> // 第一次调用:
+>> factorial(10); // 3628800
+>> // 注意控制台输出:
+>> // start calculate 10!...
+>> // 10! = 3628800
+>> 
+>> // 第二次调用:
+>> factorial(10); // 3628800
+>> // 控制台没有输出
+>> ```  
+>> &emsp; 对于相同的调用，比如连续两次调用 `factorial(10)`，第二次调用并没有计算，而是直接返回上次计算后缓存的结果。不过，当你计算 `factorial(9)` 的时候，仍然会重新计算。  
+>>  
+>> ### **once**  
+>> &emsp; 顾名思义，`once()` 保证某个函数执行且仅执行一次。如果你有一个方法叫 `register()`，用户在页面上点两个按钮的任何一个都可以执行的话，就可以用 `once()` 保证函数仅调用一次，无论用户点击多少次。  
+>>  
+>> ### **delay**  
+>> &emsp; `delay()` 可以让一个函数延迟执行，效果和 `setTimeout()` 是一样的，但是代码明显简单了:  
+>> ``` 
+>> 'use strict';
+>> 
+>> // 2秒后调用alert():
+>> _.delay(alert, 2000);
+>> ```  
+>> &emsp; 如果要延迟调用的函数有参数，把参数也传进去：  
+>> ```  
+>> 'use strict';
+>> 
+>> var log = _.bind(console.log, console);
+>> _.delay(log, 2000, 'Hello,', 'world!');
+>> // 2秒后打印'Hello, world!':  
+>> ```   
+> + ## Objects  
+>> ### **keys / allKeys**  
+>> &emsp; `keys()` 可以非常方便地返回一个 object 自身所有的 key ，但不包含从原型链继承下来的:  
+>> ```  
+>> 'use strict';
+>> 
+>> function Student(name, age) {
+>>    this.name = name;
+>>     this.age = age;
+>> }
+>> 
+>> var xiaoming = new Student('小明', 20);
+>> _.keys(xiaoming); // ['name', 'age']   
+>> ```  
+>> &emsp; `allKey()` 除了 object 自身的 key， 还包含从原型链继承下来的：  
+>> ```  
+>> 'use strict';
+>> 
+>> function Student(name, age) {
+>>     this.name = name;
+>>     this.age = age;
+>> }
+>> Student.prototype.school = 'No.1 Middle School';
+>> var xiaoming = new Student('小明', 20);
+>> _.allKeys(xiaoming); // ['name', 'age', 'school']  
+>> ```  
+>>  
+>> ### **values**  
+>> &emsp; 和 `key()` 类似，`values()` 返回 object 自身但不包含原型链继承的所有值：  
+>> &emsp; 注意，没有 `allValues()`。  
+>>  
+>> ### **mapObject**  
+>> &emsp; `mapObject()` 就是针对 object 的 map 版本：  
+>> ```  
+>> 'use strict';
+>> 
+>> var obj = { a: 1, b: 2, c: 3 };
+>> // 注意传入的函数签名，value在前，key在后:
+>> _.mapObject(obj, (v, k) => 100 + v); // { a: 101, b: 102, c: 103 }  
+>> ```  
+>>  
+>> ### **invert**  
+>> &emsp; `invert()` 把 object 的每个 key-value 来个交换，key 变成 value，value 变成 key。  
+>>  
+>> ### **extend / extendOwn**  
+>> &emsp; `extend()`把多个 object 的 key-value 合并到第一个 object 并返回：  
+>> ```  
+>> 'use strict';
+>> 
+>> var a = {name: 'Bob', age: 20};
+>> _.extend(a, {age: 15}, {age: 88, city: 'Beijing'}); // {name: 'Bob', age: 88, city: 'Beijing'}
+>> // 变量a的内容也改变了：
+>> a; // {name: 'Bob', age: 88, city: 'Beijing'}  
+>> ```  
+>> &emsp; 注意：如果有相同的 key，后面的 object 的 value 将覆盖前面的 object 的 value。  
+>> &emsp; `extendOwn()` 和 `extend()` 类似，但获取属性时忽略从原型链继承下来的属性。  
+>>  
+>> ### **clone**  
+>> &emsp; 如果我们要复制一个 object 对象，就可以用 `clone()` 方法，它会把原有对象的所有属性都复制到新的对象中。  
+>> &emsp; 注意，`clone()` 是“浅复制”，两个对象相同的 key 所引用的 value 其实是同一对象：  
+>> ` source.skills === copied.skills;  // true`  
+>> &emsp; 也就是说，修改 `source.skills` 会影响 `copied.skills`。  
+>>  
+>> ### **isEqual**  
+>> &emsp; `isEqual()` 对两个 object 进行深度比较，如果内容完全相同，则返回 `true`:  
+>> ``` 
+>> 'use strict';
+>> 
+>> var o1 = { name: 'Bob', skills: { Java: 90, JavaScript: 99 }};
+>> var o2 = { name: 'Bob', skills: { JavaScript: 99, Java: 90 }};
+>> 
+>> o1 === o2; // false
+>> _.isEqual(o1, o2); // true  
+>> ```  
+>> &emsp; `isEqual()` 其实对 `Array` 也可以比较：  
+>> ```  
+>> 'use strict';
+>> 
+>> var o1 = ['Bob', { skills: ['Java', 'JavaScript'] }];
+>> var o2 = ['Bob', { skills: ['Java', 'JavaScript'] }];
+>> 
+>> o1 === o2; // false
+>> _.isEqual(o1, o2); // true  
+>> ```  
+> + ## Chaining  
+>> &emsp; 类似 jQuery 支持链式调用，用 underscore 提供的函数，如：  
+>> ` _.filter(_.map([1, 4, 9, 16, 25], Math.sqrt), x => x % 2 === 1);  // [1, 3, 5]`  
+>> &emsp; 也可以写成链式调用。  
+>> &emsp; underscore 提供了把对象包装成能进行链式调用的方法，就是 `chain()` 函数:  
+>> ```  
+>> var r = _.chain([1, 4, 9, 16, 25])
+>>          .map(Math.sqrt)
+>>          .filter(x => x % 2 === 1)  
+>>          .value();  
+>> console.log(r);  // [1, 3, 5]  
+>> ```  
+>> &emsp; 因为每一步返回的都是包装对象，所以最后一步的结果需要调用 `value()` 获得最终结果。
+
+
+    
 
  
 
