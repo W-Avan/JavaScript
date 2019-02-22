@@ -1426,7 +1426,78 @@
 >>          .value();  
 >> console.log(r);  // [1, 3, 5]  
 >> ```  
->> &emsp; 因为每一步返回的都是包装对象，所以最后一步的结果需要调用 `value()` 获得最终结果。
+>> &emsp; 因为每一步返回的都是包装对象，所以最后一步的结果需要调用 `value()` 获得最终结果。  
++ # Node.js  
+> + ## 基本模块  
+>> ### **global**  
+>> &emsp; JavaScript 有且仅有一个全局对象，在浏览器中，叫 `window` 对象。而在 Node.js 环境中，也有唯一的全局对象，但不叫 `window`，而叫 `global`，这个对象的属性和方法也和浏览器环境的 `window` 不同。  
+>>  
+>> ### **process**  
+>> &emsp; `process` 也是 Node.js 提供的一个对象，它代表当前 Node.js 进程。通过 `process` 对象可以拿到许多有用信息。  
+>> &emsp; JavaScript 程序是由事件驱动执行的单线程模型，Node.js 也不例外。Node.js 不断执行响应事件的 JavaScript 函数，直到没有任何响应事件的函数可以执行时， Node.js 就退出了。  
+>> &emsp; 如果我们想要在下一次事件响应中执行代码，可以调用 `process.nextTick()`。传入 `process.nextTick()` 的函数不是立刻执行，而是要等到下一次事件循环。  
+>> &emsp; Node.js 进程本身的事件就由 `process` 对象来处理。如果我们响应 `exit` 事件，就可以在程序即将退出时执行某个回调函数：  
+>> ```  
+>> // 程序即将退出时的回调函数:
+>> process.on('exit', function (code) {
+>>     console.log('about to exit with code: ' + code);
+>> });  
+>> ```
+>> + ### fs  
+>>> &emsp; Node.js 内置的 `fs` 模块就是文件系统模块，负责读写文件。`fs` 模块同时提供了异步和同步的方法。  
+>>> ### **异步读文件**  
+>>> ```
+>>> 'use strict';
+>>> 
+>>> var fs = require('fs');
+>>> 
+>>> fs.readFile('sample.txt', 'utf-8', function (err, data) {
+>>>     if (err) {
+>>>         console.log(err);
+>>>     } else {
+>>>         console.log(data);
+>>>     }
+>>> }); 
+>>> ```  
+>>> &emsp; 当读取二进制文件时，不传入文件编码时，回调函数的 `data` 参数将返回一个 `Buffer` 对象。在 Node.js 中， `Buffer` 对象就是一个包含零个或任意个字节的数组（注意和 Array 不同）。  
+>>> &emsp; `Buffer` 对象可以和 String 做转换：  
+>>> ```
+>>> // Buffer -> String
+>>> var text = data.toString('utf-8');
+>>>
+>>> // String -> Buffer
+>>> var buf = Buffer.from(text, 'utf-8');
+>>> ```  
+>>> ### **同步读文件**  
+>>> &emsp; 除了标准的异步读取模式外， `fs` 也提供相应的同步读取函数。同步读取的函数和异步函数相比，多了一个 `Sync` 后缀，并且不接收回调函数，函数直接返回结果。  
+>>> &emsp; 如果同步读取文件发生错误，则需要用 `try ... catch` 捕获该错误。  
+>>> ### **写文件**  
+>>> ```
+>>> 'use strict';
+>>> 
+>>> var fs = require('fs');
+>>> 
+>>> var data = 'Hello, Node.js';
+>>> fs.writeFile('output.txt', data, function (err) {
+>>>     if (err) {
+>>>         console.log(err);
+>>>     } else {
+>>>         console.log('ok.');
+>>>     }
+>>> });
+>>> ```  
+>>> &emsp; `writeFile()` 的参数依次为文件名、数据和回调函数。如果传入的数据是 String，默认按 UTF-8 编码写入文本文件，如果传入的参数是 `Buffer`，则写入的是二进制文件。回调函数由于只关心成功与否，因此只需要一个 `err` 参数。  
+>>> &emsp; 和 `readFile()` 类似，`writeFile()` 也有一个同步方法，叫 `writeFileSync()`：  
+>>> ### **stat**  
+>>> &emsp; 如果我们要获取文件大小，创建时间等信息，可以使用 `fs.stat()`，它返回一个 `Stat` 对象，能告诉我们文件或目录的详细信息。  
+>>> `fs.stat('sample.txt', function(err, stat) { ... });`  
+>>> + stat.isFile()  &emsp; // 是否文件  
+>>> + stat.isDirectory();  &emsp; // 是否目录  
+>>> + stat.size  &emsp; // 文件大小   
+>>> + stat.birthtime  &emsp; // 创建时间， Date 对象  
+>>> + stat.mtime  &emsp; // 修改时间， Date 对象  
+
+
 
 
     
